@@ -351,7 +351,7 @@
             },
             fps: {
                 get() {
-                    return this.$store.getters.currentCameraFPS;
+                    return 1.0;
                 }
             },
             latency: {

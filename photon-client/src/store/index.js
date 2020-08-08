@@ -82,8 +82,7 @@ export default new Vuex.Store({
                 }
             }
         ],
-        pipelineResults: [
-            {
+        pipelineResults: {
                 fps: 0,
                 latency: 0,
                 targets: [{
@@ -95,8 +94,7 @@ export default new Vuex.Store({
                     // 3D only
                     pose: {x: 0, y: 0, rotation: 0},
                 }]
-            }
-        ],
+            },
         settings: {
             general: {
                 version: "Unknown",
@@ -127,7 +125,6 @@ export default new Vuex.Store({
         compactMode: set('compactMode'),
         cameraSettings: set('cameraSettings'),
         currentCameraIndex: set('currentCameraIndex'),
-        pipelineResults: set('pipelineResults'),
         networkSettings: set('networkSettings'),
         selectedOutputs: set('selectedOutputs'),
 
@@ -154,14 +151,15 @@ export default new Vuex.Store({
 
         mutatePipelineResults(state, payload) {
             // Key: index, value: result
-            let newResultArray = state.pipelineResults;
             for (let key in payload) {
                 if (!payload.hasOwnProperty(key)) continue;
                 const index = parseInt(key);
-                newResultArray[index] = payload[key];
+                if(index === state.currentCameraIndex) {
+                    Vue.set(state, 'pipelineResults', payload[key])
+                }
             }
 
-            Vue.set(state, 'pipelineResults', newResultArray)
+
         }
     },
     getters: {
@@ -170,9 +168,10 @@ export default new Vuex.Store({
         streamAddress: state =>
             ["http://" + location.hostname + ":" + state.cameraSettings[state.currentCameraIndex].inputStreamPort + "/stream.mjpg",
                 "http://" + location.hostname + ":" + state.cameraSettings[state.currentCameraIndex].outputStreamPort + "/stream.mjpg"],
-        targets: state => state.pipelineResults.length,
-        currentPipelineResults: state =>
-            state.pipelineResults[state.cameraSettings[state.currentCameraIndex].currentPipelineIndex],
+        targets: state => state.pipelineResults.targets.length,
+        currentPipelineResults: state => {
+            return state.pipelineResults;
+        },
         cameraList: state => state.cameraSettings.map(it => it.nickname),
         currentCameraSettings: state => state.cameraSettings[state.currentCameraIndex],
         currentCameraIndex: state => state.currentCameraIndex,
@@ -182,6 +181,5 @@ export default new Vuex.Store({
             return Object.values(state.cameraSettings[state.currentCameraIndex].videoFormatList); // convert to a list
         },
         pipelineList: state => state.cameraSettings[state.currentCameraIndex].pipelineNicknames,
-        currentCameraFPS: state => state.pipelineResults[state.currentCameraIndex].fps
     }
 })
