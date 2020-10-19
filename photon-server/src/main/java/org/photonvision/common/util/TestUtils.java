@@ -65,8 +65,9 @@ public class TestUtils {
     public enum WPI2020Image {
         kBlueGoal_060in_Center(1.524),
         kBlueGoal_084in_Center(2.1336),
-        kBlueGoal_084in_Center_720p(2.1336),
         kBlueGoal_108in_Center(2.7432),
+        kBlueGoal_108in_Center_720p(2.7432),
+        kBlueGoal_108in_Center_1080p(2.7432),
         kBlueGoal_132in_Center(3.3528),
         kBlueGoal_156in_Center(3.9624),
         kBlueGoal_180in_Center(4.572),
