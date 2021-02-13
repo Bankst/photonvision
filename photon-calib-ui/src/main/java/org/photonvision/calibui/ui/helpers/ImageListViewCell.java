@@ -32,6 +32,8 @@ public class ImageListViewCell extends ListCell<ImageListViewData> {
 
     @Override
     protected void updateItem(ImageListViewData item, boolean empty) {
+        super.updateItem(item, empty);
+
         if (empty) {
             setText("");
             setGraphic(null);

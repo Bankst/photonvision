@@ -1,7 +1,9 @@
 package org.photonvision.calibui.ui.controllers;
 
 import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
@@ -28,7 +30,7 @@ public class CalibUIController {
     private ListView<ImageListViewData> inputImageListView;
     private Stage stage;
 
-    private final HashMap<String, FileFrameProvider> inputImageProviders = new HashMap<>();
+    private final ObservableMap<String, FileFrameProvider> inputImageProviders = FXCollections.observableHashMap();
 
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -60,29 +62,11 @@ public class CalibUIController {
                 }
             }
         }
-
-        updateInputImageListView();
-    }
-
-    private void updateInputImageListView() {
-        ObservableList<ImageListViewData> observableItems = FXCollections.observableArrayList();
-
-        for (var inputs : inputImageProviders.entrySet()) {
-            var lvImageItem = new ImageListViewData(inputs.getKey(), CVFXUtils.matToImage(inputs.getValue().get().image));
-            lvImageItem.image.setFitWidth(160);
-            lvImageItem.image.setFitHeight(120);
-            observableItems.add(lvImageItem);
-        }
-
-        inputImageListView.getItems().clear();
-        inputImageListView.setItems(observableItems);
-        inputImageListView.getSelectionModel().selectFirst();
     }
 
     private void removeImageByTitle(String title) {
         inputImageProviders.remove(title);
         inputImageListView.getItems().removeIf(i -> i.title.equals(title));
-        updateInputImageListView();
     }
 
     @FXML
@@ -98,5 +82,27 @@ public class CalibUIController {
             return cell;
         });
         inputImageListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+        ObservableList<ImageListViewData> observableItems = FXCollections.observableArrayList();
+        inputImageProviders.addListener((MapChangeListener<String, FileFrameProvider>) change -> {
+            // this code assumes that we will not
+            // overwrite any values currently in the map
+            // if we do, both these ifs will run
+            if (change.wasAdded()) {
+                var lvImageItem = new ImageListViewData(
+                        change.getKey(), CVFXUtils.matToImage(change.getValueAdded().get().image)
+                );
+
+                lvImageItem.image.setFitWidth(160);
+                lvImageItem.image.setFitHeight(120);
+                observableItems.add(lvImageItem);
+            }
+
+            if (change.wasRemoved()) {
+                observableItems.removeIf(n -> n.title.equals(change.getKey()));
+            }
+        });
+
+        inputImageListView.setItems(observableItems);
     }
 }
