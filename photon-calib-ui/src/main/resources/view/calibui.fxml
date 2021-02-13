@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="root" prefHeight="600.0" prefWidth="800.0" stylesheets="@/css/style.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.photonvision.calibui.ui.controllers.CalibUIController">
+    <top>
+        <MenuBar fx:id="menuBar" prefHeight="25.0">
+            <Menu mnemonicParsing="false" text="File">
+                <MenuItem mnemonicParsing="false" onAction="#openImageFile" text="Open Image(s)" />
+                <MenuItem mnemonicParsing="false" onAction="#exitApplication" text="Close" />
+            </Menu>
+        </MenuBar>
+    </top>
+    <left>
+        <ListView fx:id="inputImageListView" prefHeight="200.0" prefWidth="400.0" BorderPane.alignment="CENTER" />
+    </left>
+</BorderPane>
