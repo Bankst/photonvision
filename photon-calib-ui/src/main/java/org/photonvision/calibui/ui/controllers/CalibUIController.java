@@ -1,9 +1,6 @@
 package org.photonvision.calibui.ui.controllers;
 
-import javafx.collections.FXCollections;
-import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
+import javafx.collections.*;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
@@ -89,17 +86,30 @@ public class CalibUIController {
             // overwrite any values currently in the map
             // if we do, both these ifs will run
             if (change.wasAdded()) {
+                var imageFrame = change.getValueAdded().get();
                 var lvImageItem = new ImageListViewData(
-                        change.getKey(), CVFXUtils.matToImage(change.getValueAdded().get().image)
+                        change.getKey(), CVFXUtils.matToImage(imageFrame.image)
                 );
 
                 lvImageItem.image.setFitWidth(160);
                 lvImageItem.image.setFitHeight(120);
                 observableItems.add(lvImageItem);
+                imageFrame.release();
             }
 
             if (change.wasRemoved()) {
                 observableItems.removeIf(n -> n.title.equals(change.getKey()));
+            }
+        });
+
+        observableItems.addListener((ListChangeListener<ImageListViewData>) change -> {
+            while (change.next()) {
+                if (change.wasRemoved()) {
+                    for (var removed : change.getRemoved()) {
+                        removed.image.setImage(null);
+                        System.out.println("removed image");
+                    }
+                }
             }
         });
 
