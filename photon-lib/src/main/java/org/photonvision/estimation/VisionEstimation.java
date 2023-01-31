@@ -30,13 +30,21 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.*;
+package org.photonvision.estimation;
+
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 import java.util.List;
+import org.photonvision.targeting.PhotonFrameProps;
 import org.photonvision.targeting.TargetCorner;
 
 public class VisionEstimation {
+
     public static final TargetModel kTagModel =
             new TargetModel(Units.inchesToMeters(6), Units.inchesToMeters(6));
 
@@ -46,17 +54,13 @@ public class VisionEstimation {
      *
      * <p><b>Note:</b> The returned transformation is from the field origin to the camera pose!
      *
-     * @param cameraMatrix the camera intrinsics matrix in standard opencv form
-     * @param distCoeffs the camera distortion matrix in standard opencv form
+     * @param prop The camera properties
      * @param corners The visible tag corners in the 2d image
      * @param knownTags The known tag field poses corresponding to the visible tag IDs
      * @return The transformation that maps the field origin to the camera pose
      */
     public static PNPResults estimateCamPosePNP(
-            Matrix<N3, N3> cameraMatrix,
-            Matrix<N5, N1> distCoeffs,
-            List<TargetCorner> corners,
-            List<AprilTag> knownTags) {
+            PhotonFrameProps prop, List<TargetCorner> corners, List<AprilTag> knownTags) {
         if (knownTags == null
                 || corners == null
                 || corners.size() != knownTags.size() * 4
@@ -67,7 +71,7 @@ public class VisionEstimation {
         if (corners.size() == 4) {
             var camToTag =
                     OpenCVHelp.solvePNP_SQUARE(
-                            cameraMatrix, distCoeffs, kTagModel.getFieldVertices(knownTags.get(0).pose), corners);
+                            prop, kTagModel.getFieldVertices(knownTags.get(0).pose), corners);
             var bestPose = knownTags.get(0).pose.transformBy(camToTag.best.inverse());
             var altPose = new Pose3d();
             if (camToTag.ambiguity != 0)
@@ -98,7 +102,7 @@ public class VisionEstimation {
         else {
             var objectTrls = new ArrayList<Translation3d>();
             for (var tag : knownTags) objectTrls.addAll(kTagModel.getFieldVertices(tag.pose));
-            var camToOrigin = OpenCVHelp.solvePNP_SQPNP(cameraMatrix, distCoeffs, objectTrls, corners);
+            var camToOrigin = OpenCVHelp.solvePNP_SQPNP(prop, objectTrls, corners);
             // var camToOrigin = OpenCVHelp.solveTagsPNPRansac(prop, objectTrls, corners);
             return new PNPResults(
                     camToOrigin.best.inverse(),

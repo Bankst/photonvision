@@ -34,6 +34,9 @@ public class PhotonPipelineResult {
     // Timestamp in milliseconds.
     private double timestampSeconds = -1;
 
+    // The frame properties used to capture the image processed by this result
+    private PhotonFrameProps frameProps;
+
     /** Constructs an empty pipeline result. */
     public PhotonPipelineResult() {}
 
@@ -120,6 +123,14 @@ public class PhotonPipelineResult {
      */
     public List<PhotonTrackedTarget> getTargets() {
         return new ArrayList<>(targets);
+    }
+
+    public PhotonFrameProps getFrameProperties() {
+        return frameProps;
+    }
+
+    protected void setFrameProperties(PhotonFrameProps props) {
+        this.frameProps = props;
     }
 
     /**

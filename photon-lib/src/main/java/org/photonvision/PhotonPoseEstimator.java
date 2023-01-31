@@ -63,7 +63,7 @@ public class PhotonPoseEstimator {
         /** Choose the Pose which is closest to the last pose calculated */
         CLOSEST_TO_LAST_POSE,
 
-        /** Return the average of the best target poses using ambiguity as weight. */
+        /** Choose the Pose with the lowest ambiguity. */
         AVERAGE_BEST_TARGETS,
 
         /** Use all visible tags to compute a single pose estimate.. */
@@ -323,27 +323,16 @@ public class PhotonPoseEstimator {
     }
 
     private Optional<EstimatedRobotPose> multiTagPNPStrategy(PhotonPipelineResult result) {
+
         // Arrays we need declared up front
         var visCorners = new ArrayList<TargetCorner>();
         var knownVisTags = new ArrayList<AprilTag>();
         var fieldToCams = new ArrayList<Pose3d>();
         var fieldToCamsAlt = new ArrayList<Pose3d>();
 
-        if (result.getTargets().size() < 2) {
-            // Run fallback strategy instead
-            return update(result, this.multiTagFallbackStrategy);
-        }
-
         for (var target : result.getTargets()) {
             visCorners.addAll(target.getDetectedCorners());
-
-            var tagPoseOpt = fieldTags.getTagPose(target.getFiducialId());
-            if (tagPoseOpt.isEmpty()) {
-                reportFiducialPoseError(target.getFiducialId());
-                continue;
-            }
-
-            var tagPose = tagPoseOpt.get();
+            Pose3d tagPose = fieldTags.getTagPose(target.getFiducialId()).get();
 
             // actual layout poses of visible tags -- not exposed, so have to recreate
             knownVisTags.add(new AprilTag(target.getFiducialId(), tagPose));
@@ -352,16 +341,12 @@ public class PhotonPoseEstimator {
             fieldToCamsAlt.add(tagPose.transformBy(target.getAlternateCameraToTarget().inverse()));
         }
 
-        var cameraMatrixOpt = camera.getCameraMatrix();
-        var distCoeffsOpt = camera.getDistCoeffs();
-        boolean hasCalibData = cameraMatrixOpt.isPresent() && distCoeffsOpt.isPresent();
-
         // multi-target solvePNP
-        if (hasCalibData) {
-            var cameraMatrix = cameraMatrixOpt.get();
-            var distCoeffs = distCoeffsOpt.get();
+        if (result.getTargets().size() > 1) {
+
             var pnpResults =
-                    VisionEstimation.estimateCamPosePNP(cameraMatrix, distCoeffs, visCorners, knownVisTags);
+                    VisionEstimation.estimateCamPosePNP(
+                            result.getFrameProperties(), visCorners, knownVisTags);
             var best =
                     new Pose3d()
                             .plus(pnpResults.best) // field-to-camera

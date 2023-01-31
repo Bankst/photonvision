@@ -53,6 +53,7 @@ import org.opencv.core.Point3;
 import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
 import org.opencv.imgproc.Imgproc;
+import org.photonvision.targeting.PhotonFrameProps;
 import org.photonvision.targeting.TargetCorner;
 
 public final class OpenCVHelp {
@@ -242,28 +243,24 @@ public final class OpenCVHelp {
      * Project object points from the 3d world into the 2d camera image. The camera
      * properties(intrinsics, distortion) determine the results of this projection.
      *
-     * @param cameraMatrix the camera intrinsics matrix in standard opencv form
-     * @param distCoeffs the camera distortion matrix in standard opencv form
+     * @param camProp The properties of this camera
      * @param camPose The current camera pose in the 3d world
      * @param objectTranslations The 3d points to be projected
      * @return The 2d points in pixels which correspond to the image of the 3d points on the camera
      */
     public static List<TargetCorner> projectPoints(
-            Matrix<N3, N3> cameraMatrix,
-            Matrix<N5, N1> distCoeffs,
-            Pose3d camPose,
-            List<Translation3d> objectTranslations) {
+            CameraProperties camProp, Pose3d camPose, List<Translation3d> objectTranslations) {
         // translate to opencv classes
         var objectPoints = translationToTvec(objectTranslations.toArray(new Translation3d[0]));
         // opencv rvec/tvec describe a change in basis from world to camera
         var basisChange = RotTrlTransform3d.makeRelativeTo(camPose);
         var rvec = rotationToRvec(basisChange.getRotation());
         var tvec = translationToTvec(basisChange.getTranslation());
-        var cameraMatrixMat = matrixToMat(cameraMatrix.getStorage());
-        var distCoeffsMat = matrixToMat(distCoeffs.getStorage());
+        var cameraMatrix = matrixToMat(camProp.getIntrinsics().getStorage());
+        var distCoeffs = matrixToMat(camProp.getDistCoeffs().getStorage());
         var imagePoints = new MatOfPoint2f();
         // project to 2d
-        Calib3d.projectPoints(objectPoints, rvec, tvec, cameraMatrixMat, distCoeffsMat, imagePoints);
+        Calib3d.projectPoints(objectPoints, rvec, tvec, cameraMatrix, distCoeffs, imagePoints);
 
         // turn 2d point Mat into TargetCorners
         var corners = matToTargetCorners(imagePoints);
@@ -272,8 +269,8 @@ public final class OpenCVHelp {
         objectPoints.release();
         rvec.release();
         tvec.release();
-        cameraMatrixMat.release();
-        distCoeffsMat.release();
+        cameraMatrix.release();
+        distCoeffs.release();
         imagePoints.release();
 
         return Arrays.asList(corners);
@@ -282,29 +279,28 @@ public final class OpenCVHelp {
     /**
      * Undistort 2d image points using a given camera's intrinsics and distortion.
      *
-     * <p>2d image points from projectPoints(CameraProperties, Pose3d, List) projectPoints} will
-     * naturally be distorted, so this operation is important if the image points need to be directly
-     * used (e.g. 2d yaw/pitch).
+     * <p>2d image points from {@link #projectPoints(CameraProperties, Pose3d, List) projectPoints}
+     * will naturally be distorted, so this operation is important if the image points need to be
+     * directly used (e.g. 2d yaw/pitch).
      *
-     * @param cameraMatrix the camera intrinsics matrix in standard opencv form
-     * @param distCoeffs the camera distortion matrix in standard opencv form
+     * @param camProp The properties of this camera
      * @param corners The distorted image points
      * @return The undistorted image points
      */
     public static List<TargetCorner> undistortPoints(
-            Matrix<N3, N3> cameraMatrix, Matrix<N5, N1> distCoeffs, List<TargetCorner> corners) {
+            CameraProperties camProp, List<TargetCorner> corners) {
         var points_in = targetCornersToMat(corners);
         var points_out = new MatOfPoint2f();
-        var cameraMatrixMat = matrixToMat(cameraMatrix.getStorage());
-        var distCoeffsMat = matrixToMat(distCoeffs.getStorage());
+        var cameraMatrix = matrixToMat(camProp.getIntrinsics().getStorage());
+        var distCoeffs = matrixToMat(camProp.getDistCoeffs().getStorage());
 
-        Calib3d.undistortImagePoints(points_in, points_out, cameraMatrixMat, distCoeffsMat);
+        Calib3d.undistortImagePoints(points_in, points_out, cameraMatrix, distCoeffs);
         var corners_out = matToTargetCorners(points_out);
 
         points_in.release();
         points_out.release();
-        cameraMatrixMat.release();
-        distCoeffsMat.release();
+        cameraMatrix.release();
+        distCoeffs.release();
 
         return Arrays.asList(corners_out);
     }
@@ -379,8 +375,7 @@ public final class OpenCVHelp {
      * <p>This method is intended for use with individual AprilTags, and will not work unless 4 points
      * are provided.
      *
-     * @param cameraMatrix the camera intrinsics matrix in standard opencv form
-     * @param distCoeffs the camera distortion matrix in standard opencv form
+     * @param camProp The properties of this camera
      * @param modelTrls The translations of the object corners. These should have the object pose as
      *     their origin. These must come in a specific, pose-relative order (in NWU):
      *     <ul>
@@ -396,18 +391,15 @@ public final class OpenCVHelp {
      *     ambiguity if an alternate solution is available.
      */
     public static PNPResults solvePNP_SQUARE(
-            Matrix<N3, N3> cameraMatrix,
-            Matrix<N5, N1> distCoeffs,
-            List<Translation3d> modelTrls,
-            List<TargetCorner> imageCorners) {
+            PhotonFrameProps camProp, List<Translation3d> modelTrls, List<TargetCorner> imageCorners) {
         // IPPE_SQUARE expects our corners in a specific order
         modelTrls = reorderCircular(modelTrls, true, -1);
         imageCorners = reorderCircular(imageCorners, true, -1);
         // translate to opencv classes
         var objectPoints = translationToTvec(modelTrls.toArray(new Translation3d[0]));
         var imagePoints = targetCornersToMat(imageCorners);
-        var cameraMatrixMat = matrixToMat(cameraMatrix.getStorage());
-        var distCoeffsMat = matrixToMat(distCoeffs.getStorage());
+        var cameraMatrix = matrixToMat(camProp.camIntrinsics.getStorage());
+        var distCoeffs = matrixToMat(camProp.distCoeffs.getStorage());
         var rvecs = new ArrayList<Mat>();
         var tvecs = new ArrayList<Mat>();
         var rvec = Mat.zeros(3, 1, CvType.CV_32F);
@@ -417,8 +409,8 @@ public final class OpenCVHelp {
         Calib3d.solvePnPGeneric(
                 objectPoints,
                 imagePoints,
-                cameraMatrixMat,
-                distCoeffsMat,
+                cameraMatrix,
+                distCoeffs,
                 rvecs,
                 tvecs,
                 false,
@@ -440,8 +432,8 @@ public final class OpenCVHelp {
         // release our Mats from native memory
         objectPoints.release();
         imagePoints.release();
-        cameraMatrixMat.release();
-        distCoeffsMat.release();
+        cameraMatrix.release();
+        distCoeffs.release();
         for (var v : rvecs) v.release();
         for (var v : tvecs) v.release();
         rvec.release();
@@ -459,8 +451,7 @@ public final class OpenCVHelp {
      * <p>This method is intended for use with multiple targets and has no alternate solutions. There
      * must be at least 3 points.
      *
-     * @param cameraMatrix the camera intrinsics matrix in standard opencv form
-     * @param distCoeffs the camera distortion matrix in standard opencv form
+     * @param camProp The properties of this camera
      * @param objectTrls The translations of the object corners, relative to the field.
      * @param imageCorners The projection of these 3d object points into the 2d camera image. The
      *     order should match the given object point translations.
@@ -469,15 +460,12 @@ public final class OpenCVHelp {
      *     the origin.
      */
     public static PNPResults solvePNP_SQPNP(
-            Matrix<N3, N3> cameraMatrix,
-            Matrix<N5, N1> distCoeffs,
-            List<Translation3d> objectTrls,
-            List<TargetCorner> imageCorners) {
+            PhotonFrameProps camProp, List<Translation3d> objectTrls, List<TargetCorner> imageCorners) {
         // translate to opencv classes
         var objectPoints = translationToTvec(objectTrls.toArray(new Translation3d[0]));
         var imagePoints = targetCornersToMat(imageCorners);
-        var cameraMatrixMat = matrixToMat(cameraMatrix.getStorage());
-        var distCoeffsMat = matrixToMat(distCoeffs.getStorage());
+        var cameraMatrix = matrixToMat(camProp.camIntrinsics.getStorage());
+        var distCoeffs = matrixToMat(camProp.distCoeffs.getStorage());
         var rvecs = new ArrayList<Mat>();
         var tvecs = new ArrayList<Mat>();
         var rvec = Mat.zeros(3, 1, CvType.CV_32F);
@@ -487,8 +475,8 @@ public final class OpenCVHelp {
         Calib3d.solvePnPGeneric(
                 objectPoints,
                 imagePoints,
-                cameraMatrixMat,
-                distCoeffsMat,
+                cameraMatrix,
+                distCoeffs,
                 rvecs,
                 tvecs,
                 false,
@@ -505,8 +493,8 @@ public final class OpenCVHelp {
         // release our Mats from native memory
         objectPoints.release();
         imagePoints.release();
-        cameraMatrixMat.release();
-        distCoeffsMat.release();
+        cameraMatrix.release();
+        distCoeffs.release();
         for (var v : rvecs) v.release();
         for (var v : tvecs) v.release();
         rvec.release();

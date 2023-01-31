@@ -24,6 +24,7 @@ import org.photonvision.vision.calibration.CameraCalibrationCoefficients;
 
 /** Represents the properties of a frame. */
 public class FrameStaticProperties {
+
     public final int imageWidth;
     public final int imageHeight;
     public final double fov;
