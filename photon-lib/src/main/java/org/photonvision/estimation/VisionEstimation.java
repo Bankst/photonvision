@@ -25,14 +25,6 @@
 package org.photonvision.estimation;
 
 import edu.wpi.first.apriltag.AprilTag;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.numbers.*;
-package org.photonvision.estimation;
-
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -44,7 +36,6 @@ import org.photonvision.targeting.PhotonFrameProps;
 import org.photonvision.targeting.TargetCorner;
 
 public class VisionEstimation {
-
     public static final TargetModel kTagModel =
             new TargetModel(Units.inchesToMeters(6), Units.inchesToMeters(6));
 

@@ -47,12 +47,17 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonFrameProps;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.targeting.TargetCorner;
 
 class PhotonPoseEstimatorTest {
     static AprilTagFieldLayout aprilTags;
+
+    static PhotonFrameProps frameProps =
+            new PhotonFrameProps(
+                    320, 240, 90, new double[] {0, 0, 0, 0, 0, 0, 0, 0, 0}, new double[] {0, 0, 0, 0, 0});
 
     @BeforeAll
     public static void init() {
@@ -83,6 +88,7 @@ class PhotonPoseEstimatorTest {
         cameraOne.result =
                 new PhotonPipelineResult(
                         2,
+                        frameProps,
                         List.of(
                                 new PhotonTrackedTarget(
                                         3.0,
@@ -162,6 +168,7 @@ class PhotonPoseEstimatorTest {
         cameraOne.result =
                 new PhotonPipelineResult(
                         2,
+                        frameProps,
                         List.of(
                                 new PhotonTrackedTarget(
                                         3.0,
@@ -245,6 +252,7 @@ class PhotonPoseEstimatorTest {
         cameraOne.result =
                 new PhotonPipelineResult(
                         2,
+                        frameProps,
                         List.of(
                                 new PhotonTrackedTarget(
                                         3.0,
@@ -328,6 +336,7 @@ class PhotonPoseEstimatorTest {
         cameraOne.result =
                 new PhotonPipelineResult(
                         2,
+                        frameProps,
                         List.of(
                                 new PhotonTrackedTarget(
                                         3.0,
@@ -403,6 +412,7 @@ class PhotonPoseEstimatorTest {
         cameraOne.result =
                 new PhotonPipelineResult(
                         2,
+                        frameProps,
                         List.of(
                                 new PhotonTrackedTarget(
                                         3.0,
@@ -543,6 +553,7 @@ class PhotonPoseEstimatorTest {
         cameraOne.result =
                 new PhotonPipelineResult(
                         2,
+                        frameProps,
                         List.of(
                                 new PhotonTrackedTarget(
                                         3.0,
