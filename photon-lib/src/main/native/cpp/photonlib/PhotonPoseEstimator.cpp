@@ -399,7 +399,7 @@ std::optional<EstimatedRobotPose> PhotonPoseEstimator::MultiTagPnpStrategy(
     return Update(result, this->multiTagFallbackStrategy);
   }
 
-  auto targets = result.GetTargets();
+  auto const targets = result.GetTargets();
 
   // List of corners mapped from 3d space (meters) to the 2d camera screen
   // (pixels).
@@ -409,8 +409,8 @@ std::optional<EstimatedRobotPose> PhotonPoseEstimator::MultiTagPnpStrategy(
   // Add all target corners to main list of corners
   for (auto target : targets) {
     int id = target.GetFiducialId();
-    if (auto tagCorners = CalcTagCorners(id); tagCorners.has_value()) {
-      auto targetCorners = target.GetDetectedCorners();
+    if (auto const tagCorners = CalcTagCorners(id); tagCorners.has_value()) {
+      auto const targetCorners = target.GetDetectedCorners();
       for (size_t cornerIdx = 0; cornerIdx < 4; ++cornerIdx) {
         imagePoints.emplace_back(targetCorners[cornerIdx].first,
                                  targetCorners[cornerIdx].second);
@@ -424,11 +424,11 @@ std::optional<EstimatedRobotPose> PhotonPoseEstimator::MultiTagPnpStrategy(
   }
 
   // Use OpenCV ITERATIVE solver
-  cv::Mat rvec(3, 1, cv::DataType<double>::type);
-  cv::Mat tvec(3, 1, cv::DataType<double>::type);
+  cv::Mat const rvec(3, 1, cv::DataType<double>::type);
+  cv::Mat const tvec(3, 1, cv::DataType<double>::type);
 
-  auto camMat = camera.GetCameraMatrix();
-  auto distCoeffs = camera.GetDistCoeffs();
+  auto const camMat = camera.GetCameraMatrix();
+  auto const distCoeffs = camera.GetDistCoeffs();
   if (!camMat || !distCoeffs) {
     return std::nullopt;
   }
@@ -436,7 +436,7 @@ std::optional<EstimatedRobotPose> PhotonPoseEstimator::MultiTagPnpStrategy(
   cv::solvePnP(objectPoints, imagePoints, camMat.value(), distCoeffs.value(),
                rvec, tvec, false, cv::SOLVEPNP_SQPNP);
 
-  Pose3d pose = ToPose3d(tvec, rvec);
+  Pose3d const pose = ToPose3d(tvec, rvec);
 
   return photonlib::EstimatedRobotPose(
       pose.TransformBy(m_robotToCamera.Inverse()), result.GetTimestamp());
