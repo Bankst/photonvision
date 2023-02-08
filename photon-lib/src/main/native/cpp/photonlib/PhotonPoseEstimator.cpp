@@ -47,8 +47,6 @@
 #include "photonlib/PhotonPipelineResult.h"
 #include "photonlib/PhotonTrackedTarget.h"
 
-#include <opencv2/core/eigen.hpp>
-
 namespace photonlib {
 
 namespace detail {
@@ -382,8 +380,8 @@ std::optional<EstimatedRobotPose> PhotonPoseEstimator::MultiTagPnpStrategy(
       result.GetTargets());
 }
 
-std::optional<EstimatedRobotPose>
-PhotonPoseEstimator::MultiTagPnpStrategy(PhotonPipelineResult result) {
+std::optional<EstimatedRobotPose> PhotonPoseEstimator::MultiTagPnpStrategy(
+    PhotonPipelineResult result) {
   using namespace frc;
 
   if (!result.HasTargets()) {
@@ -424,8 +422,8 @@ PhotonPoseEstimator::MultiTagPnpStrategy(PhotonPipelineResult result) {
     return std::nullopt;
   }
 
-  cv::solvePnP(objectPoints, imagePoints, camMat.value(),
-               distCoeffs.value(), rvec, tvec, false, cv::SOLVEPNP_SQPNP);
+  cv::solvePnP(objectPoints, imagePoints, camMat.value(), distCoeffs.value(),
+               rvec, tvec, false, cv::SOLVEPNP_SQPNP);
 
   Pose3d pose = ToPose3d(tvec, rvec);
 
@@ -433,7 +431,8 @@ PhotonPoseEstimator::MultiTagPnpStrategy(PhotonPipelineResult result) {
       pose.TransformBy(m_robotToCamera.Inverse()), result.GetTimestamp());
 }
 
-frc::Pose3d PhotonPoseEstimator::ToPose3d(const cv::Mat& tvec, const cv::Mat& rvec) {
+frc::Pose3d PhotonPoseEstimator::ToPose3d(const cv::Mat& tvec,
+                                          const cv::Mat& rvec) {
   using namespace frc;
   using namespace units;
 
@@ -472,7 +471,8 @@ std::optional<std::array<cv::Point3d, 4>> PhotonPoseEstimator::CalcTagCorners(
   }
 }
 
-cv::Point3d PhotonPoseEstimator::ToPoint3d(const frc::Translation3d& translation) {
+cv::Point3d PhotonPoseEstimator::ToPoint3d(
+    const frc::Translation3d& translation) {
   return cv::Point3d(-translation.Y().value(), -translation.Z().value(),
                      +translation.X().value());
 }
