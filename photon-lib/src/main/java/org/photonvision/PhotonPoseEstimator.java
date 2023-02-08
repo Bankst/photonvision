@@ -329,6 +329,11 @@ public class PhotonPoseEstimator {
         var fieldToCams = new ArrayList<Pose3d>();
         var fieldToCamsAlt = new ArrayList<Pose3d>();
 
+        if (result.getTargets().size() < 2) {
+            // Run fallback strategy instead
+            update(result, this.multiTagFallbackStrategy);
+        }
+
         for (var target : result.getTargets()) {
             visCorners.addAll(target.getDetectedCorners());
             Pose3d tagPose = fieldTags.getTagPose(target.getFiducialId()).get();
@@ -345,7 +350,7 @@ public class PhotonPoseEstimator {
         boolean hasCalibData = cameraMatrixOpt.isPresent() && distCoeffsOpt.isPresent();
 
         // multi-target solvePNP
-        if (result.getTargets().size() > 1 && hasCalibData) {
+        if (hasCalibData) {
             var cameraMatrix = cameraMatrixOpt.get();
             var distCoeffs = distCoeffsOpt.get();
             var pnpResults =
