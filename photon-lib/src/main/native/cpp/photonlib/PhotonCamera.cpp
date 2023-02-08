@@ -30,6 +30,7 @@
 
 #include "PhotonVersion.h"
 #include "photonlib/Packet.h"
+#include <opencv2/core/mat.hpp>
 
 namespace photonlib {
 

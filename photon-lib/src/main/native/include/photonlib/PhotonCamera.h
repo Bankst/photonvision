@@ -30,6 +30,7 @@
 #include <networktables/BooleanTopic.h>
 #include <networktables/DoubleArrayTopic.h>
 #include <networktables/DoubleTopic.h>
+#include <networktables/DoubleArrayTopic.h>
 #include <networktables/IntegerTopic.h>
 #include <networktables/MultiSubscriber.h>
 #include <networktables/NetworkTable.h>
