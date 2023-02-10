@@ -42,6 +42,10 @@ class Mat;
 
 #include "photonlib/PhotonCamera.h"
 
+namespace cv {
+  class Mat;
+}
+
 namespace photonlib {
 enum PoseStrategy {
   LOWEST_AMBIGUITY = 0,
@@ -265,13 +269,6 @@ class PhotonPoseEstimator {
    */
   std::optional<EstimatedRobotPose> AverageBestTargetsStrategy(
       PhotonPipelineResult result);
-
-  cv::Point3d TagCornerToObjectPoint(units::meter_t cornerX,
-                                     units::meter_t cornerY,
-                                     frc::Pose3d tagPose);
-  cv::Point3d ToPoint3d(const frc::Translation3d& translation);
-  std::optional<std::array<cv::Point3d, 4>> CalcTagCorners(int id);
-  frc::Pose3d ToPose3d(const cv::Mat& tvec, const cv::Mat& rvec);
 };
 
 }  // namespace photonlib
