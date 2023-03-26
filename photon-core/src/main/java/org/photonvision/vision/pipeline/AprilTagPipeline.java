@@ -17,10 +17,14 @@
 
 package org.photonvision.vision.pipeline;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagDetection;
 import edu.wpi.first.apriltag.AprilTagDetector;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagPoseEstimate;
 import edu.wpi.first.apriltag.AprilTagPoseEstimator.Config;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import java.util.ArrayList;
@@ -47,6 +51,21 @@ public class AprilTagPipeline extends CVPipeline<CVPipelineResult, AprilTagPipel
     private final CalculateFPSPipe calculateFPSPipe = new CalculateFPSPipe();
 
     private static final FrameThresholdType PROCESSING_TYPE = FrameThresholdType.GREYSCALE;
+
+    private static final AprilTagFieldLayout APRIL_TAG_FIELD_LAYOUT_2023 = new AprilTagFieldLayout(
+        List.of(
+            new AprilTag(1, new Pose3d(15.513558, 1.071626, 0.462788, new Rotation3d(0, 0, Math.PI))),
+            new AprilTag(2, new Pose3d(15.513558, 2.748026, 0.462788, new Rotation3d(0, 0, Math.PI))),
+            new AprilTag(3, new Pose3d(15.513558, 4.424426, 0.462788, new Rotation3d(0, 0, Math.PI))),
+            new AprilTag(4, new Pose3d(16.178784, 6.749796, 0.695452, new Rotation3d(0, 0, Math.PI))),
+            new AprilTag(5, new Pose3d(0.36195, 6.749796, 0.695452, new Rotation3d(0, 0, 0))),
+            new AprilTag(6, new Pose3d(1.02743, 4.424426, 0.462788, new Rotation3d(0, 0, 0))),
+            new AprilTag(7, new Pose3d(1.02743, 2.748026, 0.462788, new Rotation3d(0, 0, 0))),
+            new AprilTag(8, new Pose3d(1.02743, 1.071626, 0.462788, new Rotation3d(0, 0, 0)))
+        ),
+        16.54175,
+        8.0137
+    );
 
     public AprilTagPipeline() {
         super(PROCESSING_TYPE);
@@ -105,10 +124,9 @@ public class AprilTagPipeline extends CVPipeline<CVPipelineResult, AprilTagPipel
                                 new Config(tagWidth, fx, fy, cx, cy),
                                 frameStaticProperties.cameraCalibration,
                                 settings.numIterations));
-
-                // TODO global state ew
-                var atfl = ConfigManager.getInstance().getConfig().getApriltagFieldLayout();
-                multiTagPNPPipe.setParams(new MultiTargetPNPPipeParams(frameStaticProperties.cameraCalibration, settings.targetModel, atfl));
+                
+                // TODO: make the AprilTagFieldLayout configurable - Post 2023
+                multiTagPNPPipe.setParams(new MultiTargetPNPPipeParams(frameStaticProperties.cameraCalibration, settings.targetModel, APRIL_TAG_FIELD_LAYOUT_2023));
             }
         }
     }
@@ -174,6 +192,6 @@ public class AprilTagPipeline extends CVPipeline<CVPipelineResult, AprilTagPipel
         var fpsResult = calculateFPSPipe.run(null);
         var fps = fpsResult.output;
 
-        return new CVPipelineResult(sumPipeNanosElapsed, fps, targetList, frame);
+        return new CVPipelineResult(sumPipeNanosElapsed, fps, targetList, multiTagResult, frame);
     }
 }
