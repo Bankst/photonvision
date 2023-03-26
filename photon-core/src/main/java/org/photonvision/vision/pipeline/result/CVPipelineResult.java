@@ -41,9 +41,18 @@ public class CVPipelineResult implements Releasable {
         this.inputAndOutputFrame = inputFrame;
     }
 
+    public CVPipelineResult(double processingNanos, double fps, List<TrackedTarget> targets, Frame inputFrame) {
+        this(processingNanos, fps, targets, new PNPResults(), inputFrame);
+    }
+
     public CVPipelineResult(double processingNanos, double fps, List<TrackedTarget> targets, PNPResults multiTagResults) {
         this(processingNanos, fps, targets, multiTagResults, null);
     }
+
+    public CVPipelineResult(double processingNanos, double fps, List<TrackedTarget> targets) {
+        this(processingNanos, fps, targets, new PNPResults(), null);
+    }
+
 
     public boolean hasTargets() {
         return !targets.isEmpty();

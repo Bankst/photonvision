@@ -24,7 +24,6 @@
 
 package org.photonvision;
 
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -40,7 +39,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
-import org.photonvision.targeting.TargetCorner;
 
 /**
  * The PhotonPoseEstimator class filters or combines readings from all the AprilTags visible at a
@@ -64,10 +62,14 @@ public class PhotonPoseEstimator {
 
         /** Choose the Pose with the lowest ambiguity. */
         AVERAGE_BEST_TARGETS,
+
+        /** Use all visible tags to compute a single pose estimate. */
+        MULTI_TAG_PNP
     }
 
     private AprilTagFieldLayout fieldTags;
     private PoseStrategy primaryStrategy;
+    private PoseStrategy multiTagFallbackStrategy = PoseStrategy.LOWEST_AMBIGUITY;
     private final PhotonCamera camera;
     private Transform3d robotToCamera;
 
