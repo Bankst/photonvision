@@ -75,7 +75,7 @@ public class VisionEstimation {
 
             var bestTagToCam = camToTag.best.inverse();
             SmartDashboard.putNumberArray(
-                    "multiTagBest_internal",
+                    "singleTagBest_internal",
                     new double[] {
                         bestTagToCam.getX(),
                         bestTagToCam.getY(),
@@ -100,6 +100,18 @@ public class VisionEstimation {
             for (var tag : knownTags) objectTrls.addAll(kTagModel.getFieldVertices(tag.pose));
             var camToOrigin = OpenCVHelp.solvePNP_SQPNP(cameraMatrix, distCoeffs, objectTrls, corners);
             // var camToOrigin = OpenCVHelp.solveTagsPNPRansac(prop, objectTrls, corners);
+            var bestTagToCam = camToOrigin.best.inverse();
+            SmartDashboard.putNumberArray(
+                    "multiTagBest_internal",
+                    new double[] {
+                        bestTagToCam.getX(),
+                        bestTagToCam.getY(),
+                        bestTagToCam.getZ(),
+                        bestTagToCam.getRotation().getQuaternion().getW(),
+                        bestTagToCam.getRotation().getQuaternion().getX(),
+                        bestTagToCam.getRotation().getQuaternion().getY(),
+                        bestTagToCam.getRotation().getQuaternion().getZ()
+                    });
             return new PNPResults(
                     camToOrigin.best.inverse(),
                     camToOrigin.alt.inverse(),
