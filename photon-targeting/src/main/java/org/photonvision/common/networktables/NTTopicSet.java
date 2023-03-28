@@ -68,6 +68,9 @@ public class NTTopicSet {
     public DoubleArrayPublisher cameraIntrinsicsPublisher;
     public DoubleArrayPublisher cameraDistortionPublisher;
 
+    // Taggregate
+    public DoubleArrayPublisher taggregatePosePublisher;
+
     public void updateEntries() {
         rawBytesEntry =
                 subTable
@@ -100,6 +103,8 @@ public class NTTopicSet {
 
         cameraIntrinsicsPublisher = subTable.getDoubleArrayTopic("cameraIntrinsics").publish();
         cameraDistortionPublisher = subTable.getDoubleArrayTopic("cameraDistortion").publish();
+
+        taggregatePosePublisher = subTable.getDoubleArrayTopic("taggregatePose").publish();
     }
 
     @SuppressWarnings("DuplicatedCode")
@@ -125,5 +130,7 @@ public class NTTopicSet {
 
         if (cameraIntrinsicsPublisher != null) cameraIntrinsicsPublisher.close();
         if (cameraDistortionPublisher != null) cameraDistortionPublisher.close();
+
+        if (taggregatePosePublisher != null) taggregatePosePublisher.close();
     }
 }

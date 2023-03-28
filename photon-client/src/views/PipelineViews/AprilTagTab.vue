@@ -70,6 +70,14 @@
         tooltip="Number of iterations the pose estimation algorithm will run, 50-100 is a good starting point"
         @input="handlePipelineData('numIterations')"
     />
+    <CVswitch
+        v-model="doMultiTarget"
+        class="pt-2"
+        slider-cols="8"
+        name="Do Multi Target"
+        tooltip="multi taaagggg"
+        @input="handlePipelineData('doMultiTarget')"
+    />
   </div>
 </template>
 

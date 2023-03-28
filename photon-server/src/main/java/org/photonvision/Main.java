@@ -295,7 +295,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        isTestMode = true;
+        // isTestMode = true;
 
         try {
             TestUtils.loadLibraries();

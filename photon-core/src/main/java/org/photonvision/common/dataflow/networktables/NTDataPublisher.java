@@ -170,6 +170,17 @@ public class NTDataPublisher implements CVPipelineResultConsumer {
             var targetOffsetPoint = bestTarget.getTargetOffsetPoint();
             ts.bestTargetPosX.set(targetOffsetPoint.x);
             ts.bestTargetPosY.set(targetOffsetPoint.y);
+            
+            if (result.taggregateResults != null) {
+                var t3d = result.taggregateResults.best.getTranslation();
+                var rotQuat = result.taggregateResults.best.getRotation().getQuaternion();
+                ts.taggregatePosePublisher.set(new double[] {
+                    t3d.getX(), t3d.getY(), t3d.getZ(),
+                    rotQuat.getW(), rotQuat.getX(), rotQuat.getY(), rotQuat.getZ()
+                });
+            } else {
+                ts.taggregatePosePublisher.set(new double[] {0, 0, 0, 0, 0, 0, 0});
+            }
         } else {
             ts.targetPitchEntry.set(0);
             ts.targetYawEntry.set(0);
@@ -178,6 +189,7 @@ public class NTDataPublisher implements CVPipelineResultConsumer {
             ts.targetPoseEntry.set(new double[] {0, 0, 0});
             ts.bestTargetPosX.set(0);
             ts.bestTargetPosY.set(0);
+            ts.taggregatePosePublisher.set(new double[] {0, 0, 0, 0, 0, 0, 0});
         }
 
         var fsp = result.inputAndOutputFrame.frameStaticProperties;
@@ -188,6 +200,7 @@ public class NTDataPublisher implements CVPipelineResultConsumer {
             ts.cameraIntrinsicsPublisher.accept(new double[] {});
             ts.cameraDistortionPublisher.accept(new double[] {});
         }
+
 
         ts.heartbeatPublisher.set(heartbeatCounter++);
 
