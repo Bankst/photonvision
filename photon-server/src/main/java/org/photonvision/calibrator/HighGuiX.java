@@ -1,9 +1,22 @@
+/*
+ * Copyright (C) Photon Vision.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.photonvision.calibrator;
 
-import org.opencv.core.Mat;
-import org.opencv.highgui.ImageWindow;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -15,16 +28,18 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.swing.*;
+import org.opencv.core.Mat;
+import org.opencv.highgui.ImageWindow;
 
 /**
- * This class was designed for use in Java applications
- * to recreate the OpenCV HighGui functionalities.
+ * This class was designed for use in Java applications to recreate the OpenCV HighGui
+ * functionalities.
  */
 public final class HighGuiX {
-
     // Constants for namedWindow
-    public final static int WINDOW_NORMAL = ImageWindow.WINDOW_NORMAL;
-    public final static int WINDOW_AUTOSIZE = ImageWindow.WINDOW_AUTOSIZE;
+    public static final int WINDOW_NORMAL = ImageWindow.WINDOW_NORMAL;
+    public static final int WINDOW_AUTOSIZE = ImageWindow.WINDOW_AUTOSIZE;
 
     // Control Variables
     public static int n_closed_windows = 0;
@@ -79,36 +94,36 @@ public final class HighGuiX {
     public static JFrame createJFrame(String title, int flag) {
         JFrame frame = new JFrame(title);
 
-        frame.addWindowListener(new java.awt.event.WindowAdapter() {
-            @Override
-            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                n_closed_windows++;
-                if (n_closed_windows == windows.size()) latch.countDown();
-            }
-        });
+        frame.addWindowListener(
+                new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                        n_closed_windows++;
+                        if (n_closed_windows == windows.size()) latch.countDown();
+                    }
+                });
 
-        frame.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-            }
+        frame.addKeyListener(
+                new KeyListener() {
+                    @Override
+                    public void keyTyped(KeyEvent e) {}
 
-            @Override
-            public void keyReleased(KeyEvent e) {
-            }
+                    @Override
+                    public void keyReleased(KeyEvent e) {}
 
-            @Override
-            public void keyPressed(KeyEvent e) {
-                pressedKey.set(e.getKeyCode());
-                latch.countDown();
-            }
-        });
+                    @Override
+                    public void keyPressed(KeyEvent e) {
+                        pressedKey.set(e.getKeyCode());
+                        latch.countDown();
+                    }
+                });
 
         if (flag == WINDOW_AUTOSIZE) frame.setResizable(false);
 
         return frame;
     }
 
-    public static void waitKey(){
+    public static void waitKey() {
         waitKey(0);
     }
 
@@ -124,11 +139,9 @@ public final class HighGuiX {
         }
 
         // Remove the unused windows
-        Iterator<Map.Entry<String,
-                ImageWindow>> iter = windows.entrySet().iterator();
+        Iterator<Map.Entry<String, ImageWindow>> iter = windows.entrySet().iterator();
         while (iter.hasNext()) {
-            Map.Entry<String,
-                    ImageWindow> entry = iter.next();
+            Map.Entry<String, ImageWindow> entry = iter.next();
             ImageWindow win = entry.getValue();
             if (win.alreadyUsed) {
                 iter.remove();
@@ -138,9 +151,7 @@ public final class HighGuiX {
 
         // (if) Create (else) Update frame
         for (ImageWindow win : windows.values()) {
-
             if (win.img != null) {
-
                 ImageIcon icon = new ImageIcon(toBufferedImage(win.img));
 
                 if (win.lbl == null) {
@@ -151,7 +162,8 @@ public final class HighGuiX {
                     win.lbl.setIcon(icon);
                 }
             } else {
-                System.err.println("Error: no imshow associated with" + " namedWindow: \"" + win.name + "\"");
+                System.err.println(
+                        "Error: no imshow associated with" + " namedWindow: \"" + win.name + "\"");
                 System.exit(-1);
             }
         }
@@ -167,8 +179,7 @@ public final class HighGuiX {
         }
 
         // Set all windows as already used
-        for (ImageWindow win : windows.values())
-            win.alreadyUsed = true;
+        for (ImageWindow win : windows.values()) win.alreadyUsed = true;
 
         return pressedKey.getAndSet(-1);
     }
