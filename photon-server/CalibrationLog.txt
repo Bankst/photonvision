@@ -1,0 +1,31 @@
+Starting class: org.photonvision.calibrator.Loggers
+
+
+Starting Log for Camera Calibration Program Version CONVERTED alpha 7, current time 2023-10-30T21:10:06.945431100
+
+00000 2023-10-30 21:10:06.977 CONFIG  [ org.photonvision.calibrator.Loggers setupLoggers] Logger configuration done. 
+Exception in thread "main" VideoException [edu.wpi.first.cscore.VideoException: unknown error code=-2009]
+	at edu.wpi.first.cscore.CameraServerJNI.setSourceResolution(Native Method)
+	at edu.wpi.first.cscore.VideoSource.setResolution(VideoSource.java:260)
+	at org.photonvision.calibrator.Main.main(Main.java:172)
+THE END OF THE LOG
+Starting class: org.photonvision.calibrator.Loggers
+
+
+Starting Log for Camera Calibration Program Version CONVERTED alpha 7, current time 2023-10-30T21:10:40.983728200
+
+00000 2023-10-30 21:10:40.999 CONFIG  [ org.photonvision.calibrator.Loggers setupLoggers] Logger configuration done. 
+00000 2023-10-30 21:10:41.338 CONFIG  [ org.photonvision.calibrator.ChArucoDetector <clinit>] Starting ---------------------------------------- 
+00000 2023-10-30 21:10:41.380 SEVERE  [ org.photonvision.calibrator.ChArucoDetector <init>] ChArUcoBoard to be printed is in file ChArUcoBoard.jpg 
+00000 2023-10-30 21:10:41.388 CONFIG  [ org.photonvision.calibrator.ChArucoDetector <init>] 1 
+00000 2023-10-30 21:10:41.389 CONFIG  [ org.photonvision.calibrator.ChArucoDetector <init>] true 
+00000 2023-10-30 21:10:41.390 CONFIG  [ org.photonvision.calibrator.ChArucoDetector <init>] 2000 
+00000 2023-10-30 21:10:41.391 CONFIG  [ org.photonvision.calibrator.ChArucoDetector <init>] 2 
+00000 2023-10-30 21:10:41.392 CONFIG  [ org.photonvision.calibrator.ChArucoDetector <init>] true 
+00000 2023-10-30 21:10:41.398 CONFIG  [ org.photonvision.calibrator.ChArucoDetector <init>] 3.0 
+00000 2023-10-30 21:10:41.399 CONFIG  [ org.photonvision.calibrator.UserGuidance <clinit>] Starting ---------------------------------------- 
+00000 2023-10-30 21:10:41.401 CONFIG  [ org.photonvision.calibrator.Calibrator <clinit>] Starting ---------------------------------------- 
+00000 2023-10-30 21:10:41.426 CONFIG  [ org.photonvision.calibrator.BoardPreview <clinit>] Starting ---------------------------------------- 
+00000 2023-10-30 21:10:41.490 CONFIG  [ org.photonvision.calibrator.PoseGeneratorDist <clinit>] Starting ---------------------------------------- 
+00000 2023-10-30 21:10:41.493 CONFIG  [ org.photonvision.calibrator.Distortion <clinit>] Starting ---------------------------------------- 
+00001 2023-10-30 21:10:42.064 SEVERE  [ org.photonvision.calibrator.Main main] grabFrame error timed out getting frame 

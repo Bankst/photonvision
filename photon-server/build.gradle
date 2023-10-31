@@ -8,7 +8,8 @@ plugins {
 
 evaluationDependsOn(':photon-core')
 
-mainClassName = 'org.photonvision.Main'
+// mainClassName = 'org.photonvision.Main'
+mainClassName = 'org.photonvision.calibrator.Main'
 
 group 'org.photonvision'
 version versionString + (project.hasProperty('pionly') ? "-raspi" : "")
