@@ -40,13 +40,11 @@ public class JavaCvSink extends ImageSink {
         switch (pixelFormat) {
             case kYUYV:
             case kRGB565:
-                type = CvType.CV_8UC2;
-                break;
             case kBGR:
+            case kMJPEG:
                 type = CvType.CV_8UC3;
                 break;
             case kGray:
-            case kMJPEG:
             default:
                 type = CvType.CV_8UC1;
                 break;

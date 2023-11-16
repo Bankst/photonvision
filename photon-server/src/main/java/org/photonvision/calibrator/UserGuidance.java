@@ -365,17 +365,17 @@ public class UserGuidance {
         // debug display
         Mat tempImg = new Mat();
         tmp.copyTo(
-                Main.testImg1); // test 1 has the board projected (warped) from where the detector thinks is
+                Main.progressInsert); // test 1 has the board projected (warped) from where the detector thinks is
         // the camera image pose
         this.overlap.copyTo(tempImg); // tempImg has the warped guidance board
 
         Core.multiply(
-                Main.testImg1,
+                Main.progressInsert,
                 new Scalar(220.),
-                Main.testImg1); // brighten (to near white) so it can be seen by humans
+                Main.progressInsert); // brighten (to near white) so it can be seen by humans
         Core.multiply(
                 tempImg, new Scalar(130.), tempImg); // brighten (to dark gray) so it can be seen by humans
-        Core.add(Main.testImg1, tempImg, Main.testImg1); // where they overlap is bright white
+        Core.add(Main.progressInsert, tempImg, Main.progressInsert); // where they overlap is bright white
 
         // Main.LOGGER.log(Level.WARNING, "shadow_warped created r/t " + this.tracker.rvec().dump() +
         // this.tracker.tvec().dump()  + board_warped);
